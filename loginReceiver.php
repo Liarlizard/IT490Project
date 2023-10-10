@@ -1,22 +1,37 @@
 #!/usr/bin/php
 <?php
-require_once __DIR__.'/vendor/autoload.php';
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Message\AMQPMessage;
-
-$connection = new AMQPStreamConnection('localhost', 5672, 'test', 'test', 'testHost');
-$channel = $connection->channel();
-list($exchange_name, ,) = $channel->exchange_declare('loginExchange', 'direct');
-list($loginQueue, ,) = $channel->queue_declare("loginQueue");
-$channel->queue_bind($loginQueue, $exchange_name, "login");
-$screenname = $_POST[0];
-$password = $_POST[1];
-$msg = new AMQPMessage(`$screenname,$password`);
-$channel->basic_publish($msg, $exchange_name, "login");
-
-echo `[x] Sent login request for user $screenname`;
-
-$channel->close();
-$connection->close();
+require_once __DIR__ . 'vendor/autoload.php';
+require_once('login.php');
+$login_rpc = new LoginRpcClient();
+echo "
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Loading...</title>
+    </head>
+    <body>
+        <head>Authorizing Login</head>
+        <p>Attempting to login...</p>
+    </body>
+</html>
+";
+$response = $login_rpc->call($_POST);
+if ($response[0] == 1) {
+    exit;
+} else {
+    echo "
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>Unsuccessful Login</title>
+        </head>
+        <body>
+            <head>Login Unsuccesful</head>
+            <p>Unsuccessful login attempt with screen name $screenname. <a href='login.html'>Try again?</a></p>
+        </body>
+    </html>
+    ";
+}
+$login_rpc->channel->close();
+$login_rpc->connection->close();
 ?>

@@ -6,7 +6,7 @@ private $logindb;
 
 public function __construct()
 {
-	$this->logindb = new mysqli("127.0.0.1","root","12345","login");
+	$this->logindb = new mysqli("127.0.0.1","testuser","test","login");
 
 	if ($this->logindb->connect_errno != 0)
 	{
@@ -28,7 +28,7 @@ public function validateLogin($username,$password)
 		echo "checking password for $username".PHP_EOL;
 		if ($row["password"] == $pw)
 		{
-			echo "passwords match for $username".PHP_EOL;
+			echo "passwords match for $username";
 			return 1;// password match
 		}
 		echo "passwords did not match for $username".PHP_EOL;
