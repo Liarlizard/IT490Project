@@ -1,7 +1,9 @@
 <?php
+
 namespace PhpAmqpLib\Wire;
 
 use PhpAmqpLib\Exception\AMQPOutOfBoundsException;
+use PhpAmqpLib\Helper\BigInteger;
 
 /**
  * AMQP protocol decimal value.
@@ -23,8 +25,8 @@ class AMQPDecimal
     protected $e;
 
     /**
-     * @param $n
-     * @param $e
+     * @param int $n
+     * @param int $e
      * @throws \PhpAmqpLib\Exception\AMQPOutOfBoundsException
      */
     public function __construct($n, $e)
@@ -42,6 +44,25 @@ class AMQPDecimal
      */
     public function asBCvalue()
     {
-        return bcdiv($this->n, bcpow(10, $this->e));
+        $n = new BigInteger($this->n);
+        $e = new BigInteger('1' . str_repeat('0', $this->e));
+        list($q) = $n->divide($e);
+        return $q->toString();
+    }
+
+    /**
+     * @return int
+     */
+    public function getE()
+    {
+        return $this->e;
+    }
+
+    /**
+     * @return int
+     */
+    public function getN()
+    {
+        return $this->n;
     }
 }
