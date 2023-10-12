@@ -53,8 +53,8 @@ class LoginRpcClient
     {
         $this->response = null;
         $this->corr_id = uniqid();
-        $screenname = $credentials['screenname'];
-        $password = $credentials['password'];
+        $screenname = $credentials[0];
+        $password = $credentials[1];
         echo "Screen Name: $screenname \n Password: $password";
         $credString = "$screenname,$password";
         $msg = new AMQPMessage(
@@ -71,5 +71,15 @@ class LoginRpcClient
         $responseArray = array(intval($this->response), $screenname);
         return $responseArray;
     }
+
+    public function close() {
+        $this->connection->close();
+        $this->channel->close();
+    }
 }
+    $loginClient = new LoginRpcClient();
+    $credentials = array($argv[1], $argv[2]);
+    $response = $loginClient->call($credentials);
+    echo var_dump($response);
+    $loginClient->close();
 ?>
